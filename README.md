@@ -2,7 +2,7 @@
 
 ## Overview
 
-CPPiler is a simple compiler project written in C++ that demonstrates basic compiler construction techniques. This project is designed to help developers understand the fundamental concepts of **lexical analysis**, **parsing**, and **code generation**. The compiler currently supports a subset of the C++ language and can be extended to include more features.
+CPPiler is a simple compiler project written in Python that demonstrates basic compiler construction techniques. This project is designed to help developers understand the fundamental concepts of **lexical analysis**, **parsing**, and **code generation**. The compiler currently supports a subset of the C++ language and can be extended to include more features.
 
 ---
 
