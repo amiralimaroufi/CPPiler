@@ -1,0 +1,45 @@
+class ParseTreeNode:
+    def __init__(self, name, value=None, line=None):
+        self.name = name
+        self.value = value
+        self.line = line
+        self.children = []
+
+class ParseTree:
+    def __init__(self, tokens, productions):
+        self.root = ParseTreeNode("Start")
+        self.tokens = tokens
+        self.build_tree(productions)
+
+    def build_tree(self, productions):
+        stack = [self.root]
+        token_ptr = 0
+
+        for prod in productions:
+            non_terminal, rhs = prod.split(" → ")
+            rhs_elements = rhs.split()
+
+            current_node = stack.pop()
+
+            for elem in reversed(rhs_elements):
+                new_node = ParseTreeNode(elem)
+                if elem in ['int', 'float', 'identifier', 'number', 'string']:
+                    if token_ptr < len(self.tokens):
+                        new_node.value = self.tokens[token_ptr][1]
+                        new_node.line = self.tokens[token_ptr][2]
+                        token_ptr += 1
+                current_node.children.append(new_node)
+                if elem in ['M', 'T', 'Id', 'Loop', 'Input', 'Output']:
+                    stack.append(new_node)
+
+    def display(self):
+        print("\nParse Tree:")
+        self._print_tree(self.root, 0)
+
+    def _print_tree(self, node, level):
+        node_info = node.name
+        if node.value:
+            node_info += f" ({node.value}, Line: {node.line})"
+        print("  " * level + node_info)
+        for child in node.children:
+            self._print_tree(child, level + 1)
