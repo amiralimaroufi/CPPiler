@@ -1,0 +1,55 @@
+class TableDrivenPredictiveParser:
+    def __init__(self, parse_table):
+        self.parse_table = parse_table
+
+    def parse(self, input_tokens):
+     
+        stack = ['$', 'Start']  
+        input_tokens.append('$') 
+        input_index = 0
+        output_productions = [] 
+
+        while len(stack) > 0:
+            X = stack[-1] 
+            a = input_tokens[input_index] 
+
+            if X == a:
+                stack.pop()
+                input_index += 1
+            elif X in self.parse_table.terminals: 
+                raise ValueError(f"Syntax Error: Unexpected token '{a}' at position {input_index}")
+            else:
+                production = self.parse_table.get_production(X, a)
+                if production is None:
+                    raise ValueError(f"Syntax Error: No production found for {X} and {a}")
+                
+                
+                output_productions.append(f"{X} → {' '.join(production)}")
+                stack.pop()
+                if production != ['ε']: 
+                    stack.extend(reversed(production))
+
+        return output_productions
+
+if __name__ == "__main__":
+    parse_table = ParseTable()
+    
+    parse_table.display()
+
+    parser = TableDrivenPredictiveParser(parse_table)
+
+    # Sample input (tokens extracted from the lexical analyzer)
+    input_tokens = [
+        'int', 'main', '(', ')', '{', 
+        'int', 'identifier', '=', 'number', ';',  
+        'cout', '<<', 'string', '<<', 'identifier', ';', 
+        'return', 'number', ';', '}'
+    ]
+
+    try:
+        productions = parser.parse(input_tokens)
+        print("\nProductions applied:")
+        for prod in productions:
+            print(prod)
+    except ValueError as e:
+        print(f"Error: {e}")
