@@ -1,0 +1,8 @@
+    def error_handling(self):
+        errors = []
+        for token in self.parse_tree.tokens:
+            if token[1] == '=' and token[0] == 'SYMBOL':
+                if not any(t[0] in ['NUMBER', 'IDENTIFIER'] for t in self.parse_tree.tokens if t[2] == token[2]):
+                    errors.append(f"Error at line {token[2]}: Invalid assignment")
+        for error in errors:
+            print(error)
