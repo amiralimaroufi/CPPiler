@@ -1,0 +1,18 @@
+class Bonus:
+    def __init__(self, parse_tree):
+        self.parse_tree = parse_tree
+
+    def find_first_definition(self, identifier):
+        def dfs(node):
+            if node.name == 'L' and node.children:
+                id_node = node.children[0]
+                if id_node.value == identifier:
+                    return id_node.line
+            for child in node.children:
+                result = dfs(child)
+                if result:
+                    return result
+            return None
+
+        line = dfs(self.parse_tree.root)
+        return f"First definition of '{identifier}' at line {line}" if line else f"'{identifier}' is not defined"
