@@ -1,0 +1,48 @@
+class PredictiveParser:
+    def __init__(self, parse_table):
+        self.parse_table = parse_table
+        self.productions = []
+
+    def parse(self, tokens):
+        stack = ['$', 'M']
+        input_tokens = []
+        for token in tokens:
+            if token[0] == 'IDENTIFIER':
+                input_tokens.append('identifier')  
+            elif token[0] == 'RESERVED_WORD':
+                input_tokens.append(token[1])
+            else:
+                input_tokens.append(token[1])
+        input_tokens.append('$')
+        
+        input_index = 0
+
+        while len(stack) > 0:
+            top = stack[-1]
+            current_token = input_tokens[input_index]
+
+            print(f"Stack: {stack}")  
+            print(f"Current token: {current_token}")  
+
+            if top == current_token:
+                stack.pop()
+                input_index += 1
+            elif top in self.parse_table.table:
+                production = self.parse_table.get_production(top, current_token)
+                if production:
+                    print(f"Applying production: {top} → {' '.join(production)}") 
+                    stack.pop()
+                    if production != ['ε']:
+                        self.productions.append(f"{top} → {' '.join(production)}")
+                        stack.extend(reversed(production))
+                else:
+                    print(f"No production found for {top} and {current_token}") 
+                    raise ValueError(f"Syntax Error: No production found for {top} and {current_token}")
+            else:
+                print(f"Unexpected token '{current_token}' at position {input_index}")  
+                raise ValueError(f"Syntax Error: Unexpected token '{current_token}' at position {input_index}")
+
+        print("\nProduction sequence:")  
+        for prod in self.productions:
+            print(prod)
+        return self.productions
