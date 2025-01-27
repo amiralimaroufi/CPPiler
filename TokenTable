@@ -1,0 +1,13 @@
+class TokenTable:
+    def __init__(self):
+        self.table = {}
+
+    def add_token(self, token_name, value):
+        key = hash((token_name, value))
+        self.table[key] = (token_name, value)
+
+    def display(self):
+        print("\nToken Table:")
+        print("Hash Key\t\tToken Name\tValue")
+        for key, (name, val) in self.table.items():
+            print(f"{abs(key):<16}\t{name}\t\t{val}")
