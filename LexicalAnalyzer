@@ -1,0 +1,99 @@
+import re
+
+class LexicalAnalyzer:
+    def __init__(self, input_text):
+        self.input_text = input_text
+        self.position = 0
+        self.current_line = 1
+        self.reserved_words = {
+            'int', 'float', 'void', 'return', 'while', 'cin', 'cout', 
+            'continue', 'break', 'main'
+        }
+        self.symbols = {
+            '{', '}', '(', ')', ',', ';', '+', '-', '*', '/', 
+            '==', '!=', '>', '>=', '<', '<=', '=', '<<', '>>'
+        }
+        self.ignore_keywords = {'#include', '<', '>', 'using', 'namespace', 'std', 'iostream'}
+
+    def tokenize(self):
+        tokens = []
+        while self.position < len(self.input_text):
+            current_char = self.input_text[self.position]
+
+            if current_char == '\n':
+                self.current_line += 1
+                self.position += 1
+                continue
+
+            if current_char.isspace():
+                self.position += 1
+                continue
+
+            if current_char in self.ignore_keywords:
+                self._skip_ignored()
+                continue
+
+            if current_char.isdigit():
+                token = self.read_number()
+                tokens.append(('NUMBER', token, self.current_line))
+                continue
+
+            if current_char.isalpha() or current_char == '_':
+                token = self.read_identifier()
+                if token in self.reserved_words:
+                    tokens.append(('RESERVED_WORD', token, self.current_line))
+                else:
+                    tokens.append(('IDENTIFIER', token, self.current_line))
+                continue
+
+            if current_char == '"':
+                token = self.read_string()
+                tokens.append(('STRING', token, self.current_line))
+                continue
+
+            if current_char in self.symbols:
+                combined = self.check_combined_symbols()
+                if combined:
+                    tokens.append(('SYMBOL', combined, self.current_line))
+                else:
+                    tokens.append(('SYMBOL', current_char, self.current_line))
+                continue
+
+            self.position += 1
+
+        return tokens
+
+    def _skip_ignored(self):
+        while self.position < len(self.input_text) and self.input_text[self.position] in self.ignore_keywords:
+            self.position += 1
+
+    def read_number(self):
+        number = ''
+        while self.position < len(self.input_text) and self.input_text[self.position].isdigit():
+            number += self.input_text[self.position]
+            self.position += 1
+        return number
+
+    def read_identifier(self):
+        identifier = ''
+        while self.position < len(self.input_text) and (self.input_text[self.position].isalnum() or self.input_text[self.position] == '_'):
+            identifier += self.input_text[self.position]
+            self.position += 1
+        return identifier
+
+    def read_string(self):
+        string = ''
+        self.position += 1
+        while self.position < len(self.input_text) and self.input_text[self.position] != '"':
+            string += self.input_text[self.position]
+            self.position += 1
+        self.position += 1
+        return string
+
+    def check_combined_symbols(self):
+        double_char = self.input_text[self.position:self.position+2]
+        if double_char in ('==', '!=', '>=', '<=', '<<', '>>'):
+            self.position += 2
+            return double_char
+        self.position += 1
+        return None
